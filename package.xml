@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+    <id>page_builder</id>
+    <type>extension</type>
+	<version>1.0.0</version>
+	<minversion>1.0.0</minversion>
+	<cartversions>
+		<item>1.3</item>
+	</cartversions>
+	<package_content>
+		<extensions>
+			<extension>page_builder</extension>
+		</extensions>
+	</package_content>
+</package>
