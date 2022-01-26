@@ -32,7 +32,7 @@ foreach ($pages as $page) {
 	<div class="panel-heading col-xs-12">
 		<div class="primary_content_actions pull-left">
 			<div class="btn-group mr10 toolbar">
-                <button class="btn btn-default dropdown-toggle tooltips" type="button" data-toggle="dropdown" title="<?php echo $text_select_template; ?>">
+                <button class="btn btn-default dropdown-toggle tooltips" type="button" data-toggle="dropdown" title="<?php echo echo_html2view($text_select_template); ?>">
                 <i class="fa fa-photo"></i>
                 <?php echo $tmpl_id; ?> <span class="caret"></span>
                 </button>
@@ -42,7 +42,11 @@ foreach ($pages as $page) {
 			</div>
 
 			<div class="btn-group mr10 toolbar">
-			  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+			  <button class="btn btn-default dropdown-toggle"
+                      type="button" data-toggle="dropdown"
+                      style="max-width: 300px; overflow:hidden; text-overflow: ellipsis;"
+                      title="<?php echo_html2view($current_page['layout_name']);?>"
+              >
 			    <i class="fa fa-square-o"></i>
 			    <?php echo $current_page['layout_name']; ?> <span class="caret"></span>
 			  </button>
