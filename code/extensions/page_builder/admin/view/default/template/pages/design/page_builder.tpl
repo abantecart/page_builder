@@ -138,6 +138,8 @@ $(document).ready(function () {
             $.get('<?php echo $undo_url;?>', function () {
                 let gpjs = $('#page-editor');
                 let frameUrl = gpjs.attr('src');
+                //override preset name in case undo
+                frameUrl += '&load_preset=';
                 gpjs.attr('src', frameUrl);
                 resetLockBtn();
                 success_alert(<?php js_echo($undo_success_text);?>, true);
