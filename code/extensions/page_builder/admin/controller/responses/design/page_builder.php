@@ -138,7 +138,10 @@ class ControllerResponsesDesignPageBuilder extends AController
         $this->data['text_forms'] = $this->language->get('page_builder_text_forms');
         $this->data['abc_blocks'] = $availableBlocks;
         $this->data['block_content_url'] = $this->html->getCatalogURL(
-            'r/extension/page_builder/getControllerOutput', '', '', true
+            'r/extension/page_builder/getControllerOutput',
+            '',
+            '',
+            true
         );
         $this->view->batchAssign($this->data);
         $this->processTemplate('responses/design/proto_page.tpl');
@@ -199,7 +202,8 @@ class ControllerResponsesDesignPageBuilder extends AController
         $counter = $this->getMaxCounter($pageRoute)+1;
         if ($pageRoute) {
             file_put_contents(
-                $this->storageDir.'savepoints'.DIRECTORY_SEPARATOR.$pageRoute.'@'.$counter.'.json', $json
+                $this->storageDir.'savepoints'.DIRECTORY_SEPARATOR.$pageRoute.'@'.$counter.'.json',
+                $json
             );
         }
         $this->extensions->hk_UpdateData($this, __FUNCTION__);
@@ -239,7 +243,7 @@ class ControllerResponsesDesignPageBuilder extends AController
         array_map(function ($path) use (&$max) {
             $name = basename($path, '.json');
             $array = explode('@', $name);
-            $max = (int) $array[1] > $max ? (int) $array[1] : $max;
+            $max = max((int) $array[1], $max);
             return (int) $array[1];
         }, $files);
         return $max;
@@ -547,6 +551,7 @@ class ControllerResponsesDesignPageBuilder extends AController
             );
         }
     }
+
     public function log(){
         $json = file_get_contents('php://input') ?: $this->request->post;
         $json = $json ? json_decode($json, JSON_PRETTY_PRINT) : '';
