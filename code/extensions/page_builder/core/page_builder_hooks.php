@@ -169,7 +169,6 @@ class ExtensionPageBuilder extends Extension
                 $fullPath .= 'public'.DIRECTORY_SEPARATOR.$filename;
             }
 
-
             if (is_file($fullPath)) {
                 if (is_readable($fullPath)) {
                     return file_get_contents($fullPath);
@@ -221,7 +220,7 @@ class ExtensionPageBuilder extends Extension
         array_map(function ($path) use (&$max) {
             $name = basename($path, '.json');
             $array = explode('@', $name);
-            $max = (int) $array[1] > $max ? (int) $array[1] : $max;
+            $max = max((int) $array[1], $max);
             return (int) $array[1];
         }, $files);
         return $fileNameMask.'@'.$max.'.json';

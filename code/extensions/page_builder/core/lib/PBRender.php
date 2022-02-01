@@ -189,8 +189,7 @@ class PBRender
                 try {
                     $dis = new ADispatcher($route, $args);
                     $this->registry->set('PBuilder_interception', $dis->getClass());
-                    $this->registry->set('PBuilder_block_template', $cmp['attributes']['blockTemplate']);
-
+                    $this->registry->set('PBuilder_block_template', $cmp['attributes']['data-gjs-template'] ? : $cmp['attributes']['blockTemplate']);
                     $result = $dis->dispatchGetOutput();
                     $this->registry->set('PBuilder_interception', false);
                     /** @var ADocument $doc */
