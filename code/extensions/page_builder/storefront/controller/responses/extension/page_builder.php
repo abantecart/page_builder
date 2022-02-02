@@ -48,8 +48,10 @@ class ControllerResponsesExtensionPageBuilder extends AController
                 $this->registry->set('PBuilder_block_template', '');
                 unset($this->session->data['pbuilder']);
             }catch(Exception $e){
-                $this->log->write('Page Builder Error: '.$e->getMessage()."\n".$e->getTraceAsString());
-                $this->data['output'] = 'PageBuilder unexpected error. See Error Log for details';
+                if($e->getCode() != AC_HOOK_OVERRIDE) {
+                    $this->log->write('Page Builder Error: '.$e->getMessage()."\n".$e->getTraceAsString());
+                    $this->data['output'] = 'PageBuilder unexpected error. See Error Log for details';
+                }
             }
         }
         //use to update controller data
@@ -57,8 +59,14 @@ class ControllerResponsesExtensionPageBuilder extends AController
         $this->response->setOutput($this->data['output']);
     }
 
-    protected function dryRunMainContentController(){
-
+    /**
+     * Note: never rename this!
+     * @return void
+     * @throws AException
+     * @throws ReflectionException
+     */
+    protected function dryRunMainContentController()
+    {
         if($this->request->get['route'] == 'blocks/breadcrumbs'){
             $page_id = $this->request->get['page_id'];
             $sql = "SELECT * 
@@ -70,13 +78,15 @@ class ControllerResponsesExtensionPageBuilder extends AController
                     $this->request->get[$result->row['key_param']] = $result->row['key_value'];
                 }
                 $this->registry->set('PBuilder_interception', true);
-                $dis = new ADispatcher($result->row['controller']);
+                //set sign for dry-run of controller to know it inside hooks
+                $this->registry->set('PBuilder_dryrun', true);
+                $dis = new ADispatcher($result->row['controller'] );
                 //run controller and intercept data
                 /** @see ExtensionPageBuilder::__call() */
-                $r = $dis->dispatchGetOutput();
+                $dis->dispatchGetOutput();
                 $this->data = array_merge($this->data, $this->registry->get('PBRunData')['data']);
-                $this->log->write( $r );
                 $this->registry->set('PBuilder_interception', false);
+                $this->registry->set('PBuilder_dryrun', false);
                 $this->registry->set('PBuilder_block_template', '');
                 unset($this->session->data['pbuilder']);
             }
