@@ -24,14 +24,9 @@ class ControllerResponsesExtensionPageBuilder extends AController
                 ];
 
                 if( !$this->request->get['product_id'] && $route == 'pages/product/product') {
-                    //in case when layout is for default product page - take a random product id
-                    $sql = "SELECT product_id 
-                            FROM ". $this->db->table('products')." 
-                            WHERE date_available <= NOW() AND status=1
-                            ORDER BY rand() 
-                            LIMIT 1";
-                    $res = $this->db->query($sql);
-                    $this->request->get['product_id'] = $res->row['product_id'];
+                    $this->setRandomProduct_id();
+                    //erase random product id from session to show different product on every reload
+                    unset($this->session->data['pbuilder_editor']['random_product_id']);
                 }
 
                 $dis = new ADispatcher($route, $args);
@@ -76,6 +71,8 @@ class ControllerResponsesExtensionPageBuilder extends AController
             if($result->row) {
                 if($result->row['key_param']){
                     $this->request->get[$result->row['key_param']] = $result->row['key_value'];
+                }elseif($result->row['controller'] == 'pages/product/product') {
+                    $this->setRandomProduct_id();
                 }
                 $this->registry->set('PBuilder_interception', true);
                 //set sign for dry-run of controller to know it inside hooks
@@ -93,4 +90,23 @@ class ControllerResponsesExtensionPageBuilder extends AController
         }
     }
 
+    protected function setRandomProduct_id(){
+        if($this->session->data['pbuilder_editor']['random_product_id']
+            && !$this->request->get['product_id']
+        ){
+            $this->request->get['product_id'] = $this->session->data['pbuilder_editor']['random_product_id'];
+            return;
+        }
+        //in case when layout is for default product page - take a random product id
+        $sql = "SELECT product_id 
+                FROM ". $this->db->table('products')." 
+                WHERE date_available <= NOW() AND status=1
+                ORDER BY rand() 
+                LIMIT 1";
+        $res = $this->db->query($sql);
+        $this->session->data['pbuilder_editor']['random_product_id']
+            = $this->request->get['product_id']
+            = $res->row['product_id'];
+
+    }
 }
