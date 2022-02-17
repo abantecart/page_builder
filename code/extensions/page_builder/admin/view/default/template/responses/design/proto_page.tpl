@@ -123,6 +123,7 @@ if ($abc_blocks) {
 <script type="text/javascript">
     try {
         let editor = grapesjs.init({
+            log: ['debug', 'info', 'warning', 'error'],
             showOffsets: 1,
             noticeOnUnload: 0,
             container: '#gjs',
@@ -132,6 +133,7 @@ if ($abc_blocks) {
             assetManager: {
                 embedAsBase64: 1,
             },
+            styleManager: { sectors: [] },
             plugins: [
                 'grapesjs-style-gradient',
                 'grapesjs-lory-slider',
@@ -206,10 +208,6 @@ if ($abc_blocks) {
                 type: 'remote',
                 urlStore: '<?php echo $storage_url; ?>',
                 urlLoad: '<?php echo $load_url;?>'
-            },
-            styleManager: {
-                //prevent duplicates after webpage-preset init
-                clearProperties: true,
             }
         });
 

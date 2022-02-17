@@ -32,7 +32,7 @@ foreach ($pages as $page) {
 	<div class="panel-heading col-xs-12">
 		<div class="primary_content_actions pull-left">
 			<div class="btn-group mr10 toolbar">
-                <button class="btn btn-default dropdown-toggle tooltips" type="button" data-toggle="dropdown" title="<?php echo echo_html2view($text_select_template); ?>">
+                <button class="btn btn-default dropdown-toggle tooltips" type="button" data-toggle="dropdown" title="<?php echo_html2view($text_select_template); ?>">
                 <i class="fa fa-photo"></i>
                 <?php echo $tmpl_id; ?> <span class="caret"></span>
                 </button>
@@ -218,8 +218,8 @@ $(document).ready(function () {
     $('#deletePreset').on(
         'click',
         function() {
-            let currentValue = $('#preset').chosen().val();
-            if(currentValue === ''){
+            let preset = $('#preset').chosen().val();
+            if(preset === ''){
                 return;
             }
             if(confirm(<?php js_echo($delete_preset_confirm_text);?>)){
@@ -227,7 +227,7 @@ $(document).ready(function () {
                     {
                         type: 'POST',
                         url: '<?php echo $delete_preset_url; ?>',
-                        data : { preset_name: preset },
+                        data : { 'preset_name': preset },
                         success: function () {
                             let text = <?php js_echo($page_builder_remove_preset_success_text);?>;
                             $.cookie('loaded_pb_preset<?php echo $page_id.'-'.$layout_id;?>','');

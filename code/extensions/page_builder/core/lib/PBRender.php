@@ -4,16 +4,19 @@ namespace AbanteCart;
 
 use ADispatcher;
 use ADocument;
+use AException;
 use ARouter;
 use DOMDocument;
 use DOMXPath;
+use Exception;
+use Registry;
 
 /**
  *
  */
 class PBRender
 {
-    /** @var \Registry|null */
+    /** @var Registry|null */
     protected $registry;
     /** @var */
     protected $output = '';
@@ -21,6 +24,7 @@ class PBRender
      * @var string Route of main Content Area
      */
     protected $mainRoute = '';
+    protected $mainContent = [];
     protected $title = '';
     protected $docStyles = [];
     protected $docJs = [];
@@ -35,9 +39,9 @@ class PBRender
 
     public function __construct($mainRoute = '')
     {
-        $this->registry = \Registry::getInstance();
+        $this->registry = Registry::getInstance();
         if (!$this->registry) {
-            throw new \AException(AC_ERR_LOAD, 'Registry instance not found!');
+            throw new AException(AC_ERR_LOAD, 'Registry instance not found!');
         }
         $this->registry->get('extensions')->hk_InitData($this, __FUNCTION__);
         $this->mainRoute = $mainRoute;
@@ -61,7 +65,7 @@ class PBRender
 
     public function render()
     {
-        $registry = \Registry::getInstance();
+        $registry = Registry::getInstance();
         $baseHtmlFile = DIR_PB_TEMPLATES
             .$registry->get('config')->get('config_storefront_template')
             .'/base.html';
@@ -99,6 +103,9 @@ class PBRender
         $this->prepareOutput($doc, $xpath, $componentInfo);
 
         $this->output = $doc->saveHTML();
+
+        //run page-controller first to fill some document info, such breadcrumbs
+        $this->processMainContentArea($componentInfo);
 
         //replacing of markers with results
         $this->processComponents($componentInfo);
@@ -150,6 +157,70 @@ class PBRender
         }
     }
 
+    public function processMainContentArea($renderComponents)
+    {
+        //seek main content area component
+        $this->findMainContentComponent($renderComponents);
+        if(!$this->mainContent) {
+            return;
+        }
+        $cmp = $this->mainContent;
+
+        if ($cmp['route'] == 'generic') {
+            $Router = new ARouter($this->registry);
+            $Router->resetRt($this->registry->get('request')->get['rt']);
+            $Router->detectController('pages');
+            $cmp['route'] = $Router->getController() ? : 'pages/extension/generic';
+        }
+        if (!$cmp['params']
+                && !$this->registry->get('request')->get['product_id']
+                && $cmp['route'] == 'pages/product/product'
+        ) {
+            //in case when layout is for default product page - take a random product id
+            $sql = "SELECT product_id 
+                    FROM ".$this->registry->get('db')->table('products')." 
+                    WHERE date_available <= NOW() AND status=1
+                    ORDER BY rand() 
+                    LIMIT 1";
+            $res = $this->registry->get('db')->query($sql);
+            $this->registry->get('request')->get['product_id'] = $res->row['product_id'];
+        }
+
+        /** @var ADocument $doc */
+        $doc = Registry::getInstance()->get('document');
+        $this->callDispatcher($cmp);
+        //change Title of Page. take it from main content controller
+        $title = $doc ? $doc->getTitle() : '';
+        if (!$title) {
+            $this->registry->get('log')->write('DEBUG: '.__CLASS__.' Unknown title for page route '.$this->mainRoute);
+        }else {
+            $this->output = str_replace(
+                '<title></title>',
+                '<title>'.$title.'</title>',
+                $this->output
+            );
+        }
+
+    }
+
+    /**
+     * @param array $renderComponents
+     *
+     * @return void
+     */
+    protected function findMainContentComponent(array $renderComponents)
+    {
+        foreach($renderComponents as $cmp){
+            if($cmp['type'] == 'abantecart-main-content-area'){
+                $this->mainContent = $cmp;
+                break;
+            }
+            if($cmp['components']){
+               $this->findMainContentComponent($cmp['components']);
+            }
+        }
+    }
+
     /**
      * @param array $renderComponents
      */
@@ -157,90 +228,61 @@ class PBRender
     {
         $router = new ARouter($this->registry);
         $router->resetRt();
+
         foreach ($renderComponents as $cmp) {
+
             $route = $cmp['route'];
-            //check route on existing. If not - take real from request
-            if (is_int(strpos($cmp['route'], 'pages/'))) {
-                $router->resetRt($route);
-                if (!$router->detectController('pages')) {
-                    $route = $this->mainRoute;
-                }
+            if($cmp['route'] == $this->mainRoute){
+                continue;
             }
 
             if (in_array($cmp['type'], $this->componentTypes) && $route) {
-                $args = [
-                    'instance_id' => 0,
-                    'custom_block_id' => $cmp['custom_block_id'],
-                ];
-                if ($cmp['type'] == 'abantecart-main-content-area') {
-                    if ($cmp['route'] == 'generic') {
-                        $Router = new ARouter($this->registry);
-                        $Router->resetRt($this->registry->get('request')->get['rt']);
-                        $Router->detectController('pages');
-                        $route = $cmp['route'] = $Router
-                            ? $Router->getController()
-                            : 'pages/extension/generic';
-                    }
-                    if (!$cmp['params'] && $cmp['route'] == 'pages/product/product') {
-                        //in case when layout is for default product page - take a random product id
-                        $sql = "SELECT product_id 
-                                FROM ".$this->registry->get('db')->table('products')." 
-                                WHERE date_available <= NOW() AND status=1
-                                ORDER BY rand() 
-                                LIMIT 1";
-                        $res = $this->registry->get('db')->query($sql);
-                        $this->registry->get('request')->get['product_id'] = $res->row['product_id'];
-                    }
-                }
-                try {
-                    $dis = new ADispatcher($route, $args);
-                    $this->registry->set('PBuilder_interception', $dis->getClass());
-                    $this->registry->set(
-                        'PBuilder_block_template',
-                        $cmp['attributes']['data-gjs-template'] ? : $cmp['attributes']['blockTemplate']
-                    );
-                    $result = $dis->dispatchGetOutput();
-                    $this->registry->set('PBuilder_interception', false);
-                    /** @var ADocument $doc */
-                    $PBRunData = $this->registry->get('PBRunData');
-                    $doc = $PBRunData ? $PBRunData['document'] : null;
-                    //change Title of Page. take it from main content controller
-                    if ($cmp['type'] == 'abantecart-main-content-area') {
-                        $title = $doc ? $doc->getTitle() : '';
-                        if (!$title) {
-                            $this->registry->get('log')->write('DEBUG: '.__CLASS__.' Unknown title for page '.$route);
-                        }
-                        $this->output = str_replace(
-                            '<title></title>',
-                            '<title>'.$title.'</title>',
-                            $this->output
-                        );
-                    }
-
-                    $this->registry->set('PBuilder_block_template', '');
-                    if (!$result) {
-                        $result = '';
-                    } //check if block have won scripts and styles
-                    elseif ($doc) {
-                        $blockStyles = (array) $doc->getStyles();
-                        if ($blockStyles) {
-                            $this->docStyles += $blockStyles;
-                        }
-                        $blockJs = (array) $doc->getScripts() + (array) $doc->getScriptsBottom();
-                        if ($blockJs) {
-                            $this->docJs += $blockJs;
-                        }
-                    }
-                    $this->output = str_replace('content'.$cmp['attributes']['id'], $result, $this->output);
-                } catch (\Exception $e) {
-                    \Registry::getInstance()->get('log')->write($e->getMessage()."\n".$e->getTraceAsString());
-                    exit($e->getMessage());
-                }
+                $this->callDispatcher($cmp);
             }
 
             if ($cmp['components']) {
                 $this->processComponents($cmp['components']);
             }
+        }
+    }
+
+    protected function callDispatcher($cmp)
+    {
+        /** @var ADocument $doc */
+        $doc = Registry::getInstance()->get('document');
+        $route = $cmp['route'];
+        $args = [
+            'instance_id' => 0,
+            'custom_block_id' => $cmp['custom_block_id'],
+        ];
+
+        try {
+            $dis = new ADispatcher($route, $args);
+            $this->registry->set('PBuilder_interception', $dis->getClass());
+            $this->registry->set(
+                'PBuilder_block_template',
+                $cmp['attributes']['data-gjs-template'] ? : $cmp['attributes']['blockTemplate']
+            );
+            $result = $dis->dispatchGetOutput();
+            $this->registry->set('PBuilder_interception', false);
+            $this->registry->set('PBuilder_block_template', '');
+            if (!$result) {
+                $result = '';
+            } //check if block have won scripts and styles
+            elseif ($doc) {
+                $blockStyles = $doc->getStyles();
+                if ($blockStyles) {
+                    $this->docStyles += $blockStyles;
+                }
+                $blockJs = array_merge( $doc->getScripts(), $doc->getScriptsBottom() );
+                if ($blockJs) {
+                    $this->docJs += $blockJs;
+                }
+            }
+            $this->output = str_replace('content'.$cmp['attributes']['id'], $result, $this->output);
+        } catch (Exception $e) {
+            Registry::getInstance()->get('log')->write($e->getMessage()."\n".$e->getTraceAsString());
+            exit($e->getMessage());
         }
     }
 }

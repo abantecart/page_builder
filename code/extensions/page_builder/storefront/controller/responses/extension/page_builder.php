@@ -19,7 +19,7 @@ class ControllerResponsesExtensionPageBuilder extends AController
                 $this->registry->set('PBuilder_block_template', $this->request->get['template']);
                 $args = [
                     'instance_id' => 0,
-                    'custom_block_id' => $this->request->get['custom_block_id'],
+                    'custom_block_id' => (int)$this->request->get['custom_block_id'],
                     'inData' => $this->data
                 ];
 
