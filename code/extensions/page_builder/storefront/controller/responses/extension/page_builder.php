@@ -12,6 +12,8 @@ class ControllerResponsesExtensionPageBuilder extends AController
         $route = $this->request->get['route'];
         if ($route) {
             try {
+                //forbid redirects to view correct display inside canvas
+                $this->registry->set('forbid_redirects', true);
                 //if some block requires data from mainContent controller (as example breadcrumbs)
                 //run this controller first
                 $this->dryRunMainContentController();
