@@ -160,7 +160,7 @@ class PBRender
     public function processMainContentArea($renderComponents)
     {
         //seek main content area component
-        $this->findMainContentComponent($renderComponents);
+        $this->findMainContentComponent((array)$renderComponents);
         if(!$this->mainContent) {
             return;
         }
@@ -216,7 +216,7 @@ class PBRender
                 break;
             }
             if($cmp['components']){
-               $this->findMainContentComponent($cmp['components']);
+               $this->findMainContentComponent((array)$cmp['components']);
             }
         }
     }

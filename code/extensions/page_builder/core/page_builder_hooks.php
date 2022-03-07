@@ -81,10 +81,26 @@ class ExtensionPageBuilder extends Extension
         //ok, now try to get custom template made with pageBuilder
         $pbTemplateData = $this->findPageTemplate();
         if (!$pbTemplateData) {
-            $this->baseObject->data['already_called'] = true;
-            // if custom pageBuilder's template not found
-            // do not interrupt base method "main" of ControllerCommonPage
-            return false;
+            if(
+                $router->getController() == 'pages/product/product'
+                && $that->request->get['pb']
+                && !$that->request->get['product_id']
+            ){
+                //in case when layout is for default product page - take a random product id
+                $sql = "SELECT product_id 
+                        FROM ". $that->db->table('products')." 
+                        WHERE date_available <= NOW() AND status=1
+                        ORDER BY rand() 
+                        LIMIT 1";
+                $res = $that->db->query($sql);
+                $that->request->get['product_id'] = $res->row['product_id'];
+                return false;
+            }else {
+                $this->baseObject->data['already_called'] = true;
+                // if custom pageBuilder's template not found
+                // do not interrupt base method "main" of ControllerCommonPage
+                return false;
+            }
         }
         $pbTemplateData = json_decode($pbTemplateData, true, JSON_PRETTY_PRINT);
         try {
