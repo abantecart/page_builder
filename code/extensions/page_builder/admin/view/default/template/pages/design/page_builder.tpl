@@ -131,7 +131,6 @@ $(document).ready(function () {
             });
         };
     $('#publish').on('click', function(e) {
-        e.preventDefault();
         document.getElementById('page-editor').contentWindow.postMessage({messageType: 'publish'}, "*");
         setTimeout(pub,2000);
     });
@@ -268,19 +267,19 @@ function getStorageState(message) {
                     global: false,
                     success: function (data) {
                         if(data.published === 'true'){
-                            $('#publish').removeClass('btn-info').addClass('btn-default').addClass('disabled');
-                            $('#undo').addClass('disabled');
-                            $('#remove_custom_page').removeClass('disabled');
+                            $('#publish').removeClass('btn-info').addClass('btn-default').attr('disabled','disabled');
+                            $('#undo').attr('disabled','disabled');
+                            $('#remove_custom_page').removeAttr('disabled');
                         }else if(data.published === 'false'){
-                            $('#publish').removeClass('btn-default').addClass('btn-info').removeClass('disabled');
-                            $('#undo').removeClass('disabled');
-                            $('#remove_custom_page').removeClass('disabled');
+                            $('#publish').removeClass('btn-default').addClass('btn-info').removeAttr('disabled');
+                            $('#undo').removeAttr('disabled');
+                            $('#remove_custom_page').removeAttr('disabled');
                         }else if(data.published === 'nodata'){
-                            $('#undo, #remove_custom_page').addClass('disabled');
+                            $('#undo, #remove_custom_page').attr('disabled','disabled');
                             $('#publish')
                                 .removeClass('btn-info')
                                 .addClass('btn-default')
-                                .addClass('disabled');
+                                .attr('disabled','disabled');
                         }
                     },
                 }
