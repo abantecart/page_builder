@@ -39,7 +39,7 @@ class ControllerResponsesDesignPageBuilder extends AController
         //use to init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
 
-        $template = $this->request->get['template_id'] ? : 'default';
+        $template = $this->request->get['template_id'] ? : $this->request->get['tmpl_id'] ? : 'default';
         $page_id = $this->request->get['page_id'];
         $layout_id = $this->request->get['layout_id'];
 
@@ -171,6 +171,7 @@ class ControllerResponsesDesignPageBuilder extends AController
             //if unsaved page not found - seek published
             $file = $this->storageDir.'public'.DIRECTORY_SEPARATOR.$pageRoute.'.json';
         }
+$this->log->write( DIR_STOREFRONT.'view'.DIRECTORY_SEPARATOR.$this->tmpl_id.DIRECTORY_SEPARATOR.self::DEFAULT_PRESET );
         if (!is_file($file)) {
             $defaultPreset = true;
             //if published page not found - seek default preset of core template
