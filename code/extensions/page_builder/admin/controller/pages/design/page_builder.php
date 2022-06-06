@@ -22,12 +22,22 @@ class ControllerPagesDesignPageBuilder extends AController
 
         $this->session->data['content_language_id'] = $this->config->get('storefront_language_id');
 
-        $this->data['tmpl_id'] = $tmpl_id = $this->request->get['tmpl_id'] ?: 'default';
-        $page_id = $this->request->get['page_id'] ?: 5;
-        $layout_id = $this->request->get['layout_id'] ?: 14;
+        $this->data['tmpl_id'] = $tmpl_id
+            = $this->request->get['tmpl_id']
+                ?: $this->config->get('config_storefront_template')
+                ?: 'default';
+
+        $page_id = $this->request->get['page_id'];
+        $layout_id = $this->request->get['layout_id'];
 
         $layout = new ALayoutManager($tmpl_id, $page_id, $layout_id);
         $this->data['pages'] = $layout->getAllPages();
+        if(!$page_id){
+            $page_id = $this->data['pages'][0]['page_id'];
+            $layout_id = $this->data['pages'][0]['layout_id'];
+            $layout = new ALayoutManager($tmpl_id, $page_id, $layout_id);
+        }
+
         $this->data['current_page'] = $layout->getPageData();
         $params = [
             'page_id'   => $page_id,
