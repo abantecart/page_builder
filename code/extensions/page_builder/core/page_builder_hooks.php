@@ -102,6 +102,7 @@ class ExtensionPageBuilder extends Extension
                 return false;
             }
         }
+
         $pbTemplateData = json_decode($pbTemplateData, true, JSON_PRETTY_PRINT);
         try {
             //TODO: need to create some PB-Renderer to process tpl
@@ -133,6 +134,14 @@ class ExtensionPageBuilder extends Extension
             return false;
         }
         return true;
+    }
+
+    public function onAHook_InitEnd(){
+        $registry = Registry::getInstance();
+        if($registry->get('request')->get['tmpl_id']){
+            $registry->get('config')->set('config_storefront_template', $registry->get('request')->get['tmpl_id']);
+            $registry->set('layout', new ALayout($registry, $registry->get('request')->get['tmpl_id']));
+        }
     }
 
     /**
