@@ -70,7 +70,11 @@ class PBRender
             .$registry->get('config')->get('config_storefront_template')
             .'/base.html';
         if (!is_file($baseHtmlFile)) {
-            copy(DIR_EXT.'page_builder/base.html', $baseHtmlFile);
+            $baseHtmlFile = DIR_EXT.$registry->get('config')->get('config_storefront_template')
+                        .'/storefront/base.html';
+            if (!is_file($baseHtmlFile)) {
+                copy(DIR_EXT.'page_builder/base.html', $baseHtmlFile);
+            }
         }
         $this->output = file_get_contents($baseHtmlFile);
 

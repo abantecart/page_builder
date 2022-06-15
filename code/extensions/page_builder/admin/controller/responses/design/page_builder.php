@@ -171,7 +171,7 @@ class ControllerResponsesDesignPageBuilder extends AController
             //if unsaved page not found - seek published
             $file = $this->storageDir.'public'.DIRECTORY_SEPARATOR.$pageRoute.'.json';
         }
-$this->log->write( DIR_STOREFRONT.'view'.DIRECTORY_SEPARATOR.$this->tmpl_id.DIRECTORY_SEPARATOR.self::DEFAULT_PRESET );
+
         if (!is_file($file)) {
             $defaultPreset = true;
             //if published page not found - seek default preset of core template
@@ -188,7 +188,26 @@ $this->log->write( DIR_STOREFRONT.'view'.DIRECTORY_SEPARATOR.$this->tmpl_id.DIRE
         $this->data['file'] = $file;
         //use to update controller data
         $this->extensions->hk_UpdateData($this, __FUNCTION__);
-        $this->response->setOutput(file_get_contents($this->data['file']));
+
+        // replace custom_block_ids inside default presets of template
+        $layout = new ALayoutManager('bootstrap5');
+        $allBlocks = $layout->getBlocksList();
+        $bs5Blocks = [];
+        foreach($allBlocks as $b){
+           if($b['custom_block_id'] && is_int(stripos($b['block_name'],'BS5'))){
+               $bs5Blocks[strtoupper($b['block_name'])] = $b['custom_block_id'];
+           }
+        }
+
+        $preset = $this->data['file'];
+        $pbTemplateData = file_get_contents($preset);
+        $pbTemplateData = json_decode($pbTemplateData, true, JSON_PRETTY_PRINT);
+        $newPreset = $pbTemplateData;
+        $newPreset['gjs-html'] = preparePageBuilderPreset($pbTemplateData['gjs-html'], 'html', $bs5Blocks);
+        $newPreset['gjs-components'] = preparePageBuilderPreset($pbTemplateData['gjs-components'], 'components', $bs5Blocks);
+        $newPreset['gjs-components'] = json_encode($newPreset['gjs-components']);
+
+        $this->response->setOutput(json_encode($newPreset));
     }
 
     public function savePage()

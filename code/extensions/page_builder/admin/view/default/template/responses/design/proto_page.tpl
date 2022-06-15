@@ -129,7 +129,7 @@ if ($abc_blocks) {
             container: '#gjs',
             height: '100%',
             fromElement: true,
-            allowScripts: 0,
+            allowScripts: 1,
             assetManager: {
                 embedAsBase64: 1,
             },

@@ -5,7 +5,7 @@ use AbanteCart\PBRender;
 if (!defined('DIR_CORE')) {
     header('Location: static_pages/');
 }
-
+require_once ('helper.php');
 class ExtensionPageBuilder extends Extension
 {
 
