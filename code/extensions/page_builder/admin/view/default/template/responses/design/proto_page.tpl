@@ -129,7 +129,7 @@ if ($abc_blocks) {
             container: '#gjs',
             height: '100%',
             fromElement: true,
-            allowScripts: 1,
+            allowScripts: 0,
             assetManager: {
                 embedAsBase64: 1,
             },
@@ -206,8 +206,14 @@ if ($abc_blocks) {
             },
             storageManager: {
                 type: 'remote',
-                urlStore: '<?php echo $storage_url; ?>',
-                urlLoad: '<?php echo $load_url;?>'
+                // Default storage options
+                options: {
+                  remote: {
+                      urlStore: '<?php echo $storage_url; ?>',
+                      urlLoad: '<?php echo $load_url;?>'
+                  },
+                }
+
             }
         });
 

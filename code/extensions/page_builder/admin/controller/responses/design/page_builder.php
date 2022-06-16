@@ -159,7 +159,6 @@ class ControllerResponsesDesignPageBuilder extends AController
         $layout_id = $this->request->get['layout_id'];
         $pageRoute = $this->getPageRoute($page_id, $layout_id);
         $this->session->data['PB']['current_route'] = $pageRoute;
-        $this->session->data['PB']['first_load'] = true;
         //use to update controller data
         $this->extensions->hk_UpdateData($this, __FUNCTION__);
         $this->response->addJSONHeader();
@@ -504,7 +503,7 @@ class ControllerResponsesDesignPageBuilder extends AController
                 $this->data['output']['published'] = 'false';
             }
         } else {
-            $errorText = $this->language->get('page_builder_error_route_not_found');
+            $errorText = $this->language->get('page_builder_error_route_not_found') ;
             $err = new AError($errorText);
             $err->toJSONResponse(
                 AC_ERR_REQUIREMENTS,
