@@ -94,7 +94,7 @@ foreach ($pages as $page) {
                                     [
                                         'type'        => 'selectbox',
                                         'name'        => 'preset',
-                                        'value'       => $_COOKIE['loaded_pb_preset'.$page_id.'-'.$layout_id],
+                                        'value'       => $_COOKIE['loaded_pb_preset_'.$page_id.'-'.$layout_id],
                                         'options'     => $preset_list,
                                         'style'       => 'chosen',
                                     ]
@@ -204,7 +204,7 @@ $(document).ready(function () {
                         success: function () {
                             let text = <?php js_echo($page_builder_save_preset_success_text);?>;
                             success_alert(text.replace('%s',preset), true);
-                            $.cookie('loaded_pb_preset<?php echo $page_id.'-'.$layout_id;?>',preset);
+                            $.cookie('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>',preset);
                             if($("#preset option[value='"+preset+"']").length===0) {
                                 let newOption = $('<option value="'+preset+'" selected>'+preset+'</option>');
                                 $('#preset').append(newOption).chosen().trigger("chosen:updated");
@@ -230,7 +230,7 @@ $(document).ready(function () {
                         data : { 'preset_name': preset },
                         success: function () {
                             let text = <?php js_echo($page_builder_remove_preset_success_text);?>;
-                            $.cookie('loaded_pb_preset<?php echo $page_id.'-'.$layout_id;?>','');
+                            $.cookie('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>','');
                             info_alert(text.replace('%s',preset), true);
                             $("#preset option[value='"+preset+"']").remove();
                             $('#preset').chosen().trigger("chosen:updated");

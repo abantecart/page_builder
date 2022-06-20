@@ -1,9 +1,9 @@
 <?php
 
-
 if (! defined ( 'DIR_CORE' )) {
  header ( 'Location: static_pages/' );
 }
+require_once (DIR_EXT.'page_builder'.DS.'core'.DS.'helper.php');
 
 // add new menu item
 $rm = new AResourceManager();
@@ -42,4 +42,7 @@ if(!is_dir(DIR_SYSTEM.'page_builder')){
     }
 }
 
-
+$dirs = glob(DIR_EXT.'*'.DS.'system'.DS.'page_builder');
+foreach($dirs as $dir){
+    recurseCopy($dir, DIR_SYSTEM.'page_builder');
+}

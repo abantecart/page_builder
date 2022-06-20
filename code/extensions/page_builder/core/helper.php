@@ -1,6 +1,10 @@
 <?php
+if(!defined('DS')) {
+    define('DS', DIRECTORY_SEPARATOR);
+}
 
 function preparePageBuilderPreset($data, $mode, $indexes){
+    $output = null;
     if($mode == 'html'){
         $doc = new DOMDocument();
         $doc->loadHTML($data);
@@ -55,4 +59,50 @@ function processPageBuilderComponent($data, $indexes){
     }
 
     return $data;
+}
+
+function recurseCopy( string $sourceDirectory, string $destinationDirectory, string $childFolder = ''): void
+{
+    $directory = opendir($sourceDirectory);
+
+    if (is_dir($destinationDirectory) === false) {
+        mkdir($destinationDirectory);
+    }
+
+    if ($childFolder !== '') {
+        if (is_dir($destinationDirectory.DS.$childFolder) === false) {
+            mkdir($destinationDirectory.DS.$childFolder);
+        }
+
+        while (($file = readdir($directory)) !== false) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            if (is_dir($sourceDirectory.DS.$file) === true) {
+                recurseCopy($sourceDirectory.DS.$file, $destinationDirectory.DS.$childFolder.DS.$file);
+            } else {
+                copy($sourceDirectory.DS.$file, $destinationDirectory.DS.$childFolder.DS.$file);
+            }
+        }
+
+        closedir($directory);
+
+        return;
+    }
+
+    while (($file = readdir($directory)) !== false) {
+        if ($file === '.' || $file === '..') {
+            continue;
+        }
+
+        if (is_dir($sourceDirectory.DS.$file) === true) {
+            recurseCopy($sourceDirectory.DS.$file, $destinationDirectory.DS.$file);
+        }
+        else {
+            copy($sourceDirectory.DS.$file, $destinationDirectory.DS.$file);
+        }
+    }
+
+    closedir($directory);
 }

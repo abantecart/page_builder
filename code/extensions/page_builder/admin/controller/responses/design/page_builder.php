@@ -74,7 +74,7 @@ class ControllerResponsesDesignPageBuilder extends AController
 
         if ($this->request->cookie['loaded_pb_preset_'.$page_id.'-'.$layout_id]) {
             $get = $this->request->get;
-            $presetFile = DIR_PB_PRESETS.$this->request->get['loaded_pb_preset_'.$page_id.'-'.$layout_id].'.json';
+            $presetFile = DIR_PB_PRESETS.$this->request->cookie['loaded_pb_preset_'.$page_id.'-'.$layout_id].'.json';
             if (is_file($presetFile)) {
                 $pageRoute = $this->getPageRoute($page_id, $layout_id);
                 if ($pageRoute) {
