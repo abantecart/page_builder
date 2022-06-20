@@ -153,6 +153,7 @@ $(document).ready(function () {
     });
     $('#remove_custom_page').on('click', function() {
         if(confirm(<?php js_echo($button_remove_custom_page_confirm_text);?>)) {
+            $.cookie('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>','');
             $.get('<?php echo $remove_custom_page_url;?>',
                 function () {
                     let gpjs = $('#page-editor');
@@ -177,7 +178,7 @@ $(document).ready(function () {
             let gpjs = $('#page-editor');
             let frameUrl = gpjs.attr('src');
             $.cookie('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>',val);
-            gpjs.attr('src', frameUrl + '&load_preset='+val);
+            gpjs.attr('src', frameUrl);
         }
     });
 

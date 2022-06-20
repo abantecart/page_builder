@@ -72,9 +72,9 @@ class ControllerResponsesDesignPageBuilder extends AController
             $this->view->assign('mainContentArea', $mainContentArea);
         }
 
-        if ($this->request->get['load_preset']) {
+        if ($this->request->cookie['loaded_pb_preset_'.$page_id.'-'.$layout_id]) {
             $get = $this->request->get;
-            $presetFile = DIR_PB_PRESETS.$this->request->get['load_preset'].'.json';
+            $presetFile = DIR_PB_PRESETS.$this->request->get['loaded_pb_preset_'.$page_id.'-'.$layout_id].'.json';
             if (is_file($presetFile)) {
                 $pageRoute = $this->getPageRoute($page_id, $layout_id);
                 if ($pageRoute) {
@@ -85,7 +85,7 @@ class ControllerResponsesDesignPageBuilder extends AController
                     );
                 }
             }
-            unset($get['load_preset']);
+            setcookie('loaded_pb_preset_'.$page_id.'-'.$layout_id,'');
             redirect($this->html->getSecureURL($get['rt'], '&'.http_build_query($get)));
         }
 
@@ -187,26 +187,8 @@ class ControllerResponsesDesignPageBuilder extends AController
         $this->data['file'] = $file;
         //use to update controller data
         $this->extensions->hk_UpdateData($this, __FUNCTION__);
-
-        // replace custom_block_ids inside default presets of template
-        $layout = new ALayoutManager('bootstrap5');
-        $allBlocks = $layout->getBlocksList();
-        $bs5Blocks = [];
-        foreach($allBlocks as $b){
-           if($b['custom_block_id'] && is_int(stripos($b['block_name'],'BS5'))){
-               $bs5Blocks[strtoupper($b['block_name'])] = $b['custom_block_id'];
-           }
-        }
-
-        $preset = $this->data['file'];
-        $pbTemplateData = file_get_contents($preset);
-        $pbTemplateData = json_decode($pbTemplateData, true, JSON_PRETTY_PRINT);
-        $newPreset = $pbTemplateData;
-        $newPreset['gjs-html'] = preparePageBuilderPreset($pbTemplateData['gjs-html'], 'html', $bs5Blocks);
-        $newPreset['gjs-components'] = preparePageBuilderPreset($pbTemplateData['gjs-components'], 'components', $bs5Blocks);
-        $newPreset['gjs-components'] = json_encode($newPreset['gjs-components']);
-
-        $this->response->setOutput(json_encode($newPreset));
+        $this->response->addJSONHeader();
+        $this->response->setOutput(file_get_contents($this->data['file']));
     }
 
     public function savePage()

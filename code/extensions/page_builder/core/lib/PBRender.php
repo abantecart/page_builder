@@ -5,6 +5,7 @@ namespace AbanteCart;
 use ADispatcher;
 use ADocument;
 use AException;
+use AResource;
 use ARouter;
 use DOMDocument;
 use DOMXPath;
@@ -84,13 +85,19 @@ class PBRender
             $this->output
         );
         $this->output = str_replace(
+            '{{version}}',
+            VERSION,
+            $this->output
+        );
+
+        $this->output = str_replace(
             '<!--  {{body}}-->',
-            $this->templateData['gjs-html'],
+            $this->templateData['pageHtml'][0]['html'],
             $this->output
         );
         $this->output = str_replace(
             '<style></style>',
-            '<style>'.$this->templateData['gjs-css'].'</style>',
+            '<style>'.$this->templateData['pageHtml'][0]['css'].'</style>',
             $this->output
         );
         $this->output = str_replace(
@@ -99,7 +106,7 @@ class PBRender
             $this->output
         );
 
-        $componentInfo = json_decode($this->templateData['gjs-components'], JSON_PRETTY_PRINT);
+        $componentInfo = $this->templateData['pages'][0]['frames'][0]['component']['components'];
         $doc = new DOMDocument();
         $doc->loadHTML($this->output);
         $xpath = new DOMXpath($doc);
@@ -118,8 +125,7 @@ class PBRender
         if ($this->docStyles) {
             $cssTags = '';
             foreach ($this->docStyles as $style) {
-                $cssTags .= '<link rel="'.$style['rel'].'" type="text/css" href="'.$style['href'].'" media="'
-                    .$style['media'].'" />'."\n";
+                $cssTags .= '<link rel="'.$style['rel'].'" type="text/css" href="'.$style['href'].'" media="'.$style['media'].'" />'."\n";
             }
             $this->output = str_replace(
                 '<!--  {{blocks_css}}-->',
@@ -138,6 +144,24 @@ class PBRender
                 $this->output
             );
         }
+
+        $iconUri = $this->registry->get('config')->get('config_icon');
+        //see if we have a resource ID or path
+        if ($iconUri) {
+            if (is_numeric($iconUri)) {
+                $resource = new AResource('image');
+                $resourceInfo = $resource->getResource($iconUri);
+                if (is_file(DIR_RESOURCE.$resourceInfo['type_dir'].$resourceInfo['resource_path'])) {
+                    $iconUri = $resourceInfo['type_dir'].$resourceInfo['resource_path'];
+                }
+            }
+            $this->output = str_replace(
+                '<!--  {{favicon}}-->',
+                '<link href="resources/'.$iconUri.'" type="'.mime_content_type(DIR_RESOURCE . $iconUri).'" rel="icon" />',
+                $this->output
+            );
+        }
+
         return $this->output;
     }
 
@@ -192,6 +216,7 @@ class PBRender
 
         /** @var ADocument $doc */
         $doc = Registry::getInstance()->get('document');
+
         $this->callDispatcher($cmp);
         //change Title of Page. take it from main content controller
         $title = $doc ? $doc->getTitle() : '';
@@ -201,6 +226,25 @@ class PBRender
             $this->output = str_replace(
                 '<title></title>',
                 '<title>'.$title.'</title>',
+                $this->output
+            );
+        }
+
+        //page description
+        $keywords = $doc ? $doc->getKeywords() :'';
+        if($keywords) {
+            $this->output = str_replace(
+                '<!--  {{keywords}}-->',
+                '<meta name="keywords" content="'.$keywords.'">',
+                $this->output
+            );
+        }
+        //page description
+        $description = $doc ? $doc->getDescription() :'';
+        if($description) {
+            $this->output = str_replace(
+                '<!--  {{description}}-->',
+                '<meta name="description" content="'.$description.'">',
                 $this->output
             );
         }
@@ -268,11 +312,12 @@ class PBRender
                 $cmp['attributes']['data-gjs-template'] ? : $cmp['attributes']['blockTemplate']
             );
             $result = $dis->dispatchGetOutput();
+
             $this->registry->set('PBuilder_interception', false);
             $this->registry->set('PBuilder_block_template', '');
             if (!$result) {
                 $result = '';
-            } //check if block have won scripts and styles
+            } //check if block have own scripts and styles
             elseif ($doc) {
                 $blockStyles = $doc->getStyles();
                 if ($blockStyles) {

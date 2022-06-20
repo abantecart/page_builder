@@ -6,50 +6,27 @@ echo $this->language->getLanguageCode(); ?>">
 <head>
     <meta charset="utf-8">
     <title></title>
-    <link rel="stylesheet" href="<?php
-    echo $this->templateResource('/javascript/grapesjs/css/grapes.min.css'); ?>">
-    <link rel="stylesheet" href="<?php
-    echo $this->templateResource('/javascript/grapesjs/grapesjs-preset-webpage.min.css'); ?>">
-    <link rel="stylesheet" href="<?php
-    echo $this->templateResource('/javascript/grapesjs/grapesjs-plugin-filestack.css'); ?>">
-    <link rel="stylesheet" href="<?php
-    echo $this->templateResource('/javascript/grapesjs/grapick.min.css'); ?>">
-    <link rel="stylesheet" href="<?php
-    echo $this->templateResource('/javascript/grapesjs/tooltip.css'); ?>">
-    <link rel="stylesheet" href="<?php
-    echo $this->templateResource('/javascript/grapesjs/toastr.min.css'); ?>">
-    <link rel="stylesheet" href="<?php
-    echo $this->templateResource('/css/page_builder_editor.css'); ?>">
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs/grapes.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-preset-webpage.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-touch.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs_toastr.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-parser-postcss.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-tooltip.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-custom-code.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-style-bg.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-style-gradient.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-tabs.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-lory-slider.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-typed.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource('/javascript/grapesjs-tui-image-editor.min.js'); ?>"></script>
-    <script src="<?php
-    echo $this->templateResource(
-        '/javascript/grapesjs-abantecart-component/grapesjs-abantecart-component.min.js'
-    ); ?>"></script>
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapesjs/css/grapes.min.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapesjs-preset-webpage.min.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapesjs-plugin-filestack.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapick.min.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/tooltip.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/toastr.min.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/css/page_builder_editor.css'); ?>">
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs/grapes.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-preset-webpage.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-touch.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs_toastr.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-parser-postcss.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-tooltip.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-custom-code.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-style-bg.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-style-gradient.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-tabs.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-lory-slider.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-typed.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-tui-image-editor.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/javascript/grapesjs-abantecart-component/grapesjs-abantecart-component.min.js'); ?>"></script>
 </head>
 
 <body>
@@ -93,7 +70,7 @@ if ($abc_blocks) {
                     //html attributes of newly created blocks on the canvas
                     //Note: names must be started "data-gjs-" to work correctly during import
                     'attributes'      => [
-                        'data-gjs-custom-name'         => 'ABC-'.$blockName,
+                        'data-gjs-custom-name'     => 'ABC-'.$blockName,
                         'data-gjs-type'            => 'abantecart-'.$type.'-block',
                         'data-gjs-route'           => $block['controller'],
                         'data-gjs-layout_id'       => $mainContentArea['layout_id'],
@@ -210,7 +187,19 @@ if ($abc_blocks) {
                 options: {
                   remote: {
                       urlStore: '<?php echo $storage_url; ?>',
-                      urlLoad: '<?php echo $load_url;?>'
+                      urlLoad: '<?php echo $load_url;?>',
+                      // Enrich the store call
+                      onStore: (data, editor) => {
+                        const pageHtml = editor.Pages.getAll().map(page => {
+                            const component = page.getMainComponent();
+                            return {
+                                html: editor.getHtml({ component }),
+                                css: editor.getCss({ component })
+                            }
+                        });
+                        data.pageHtml = pageHtml;
+                        return data;
+                      },
                   },
                 }
 
