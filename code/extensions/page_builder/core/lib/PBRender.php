@@ -157,7 +157,7 @@ class PBRender
             }
             $this->output = str_replace(
                 '<!--  {{favicon}}-->',
-                '<link href="resources/'.$iconUri.'" type="'.mime_content_type(DIR_RESOURCE . $iconUri).'" rel="icon" />',
+                '<link href="resources/'.$iconUri.'" type="'.mime_content_type(DIR_RESOURCE . $iconUri).'" rel="icon">',
                 $this->output
             );
         }

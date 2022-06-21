@@ -31,16 +31,20 @@ $menu->insertMenuItem(
 );
 
 if(!is_dir(DIR_SYSTEM.'page_builder')){
-    if(mkdir(DIR_SYSTEM.'page_builder',0775)){
-        $tmpl_id = $this->config->get('config_storefront_template');
-        $def = DIR_SYSTEM.'page_builder'.DIRECTORY_SEPARATOR.$tmpl_id;
-        mkdir($def,0775);
-        copy(
-            DIR_EXT.'page_builder'.DIRECTORY_SEPARATOR.'base.html',
-            $def.DIRECTORY_SEPARATOR.'base.html'
-        );
-    }
+    mkdir(DIR_SYSTEM.'page_builder',0775);
 }
+
+$tmpl_id = $this->config->get('config_storefront_template');
+$src = DIR_EXT.$tmpl_id.DS.'storefront'.DS.'base.html';
+if(!is_file($src)){
+    $src = DIR_EXT.'page_builder'.DS.'base.html';
+}
+$def = DIR_SYSTEM.'page_builder'.DS.$tmpl_id;
+mkdir($def,0775);
+copy(
+    $src,
+    $def.DS.'base.html'
+);
 
 $dirs = glob(DIR_EXT.'*'.DS.'system'.DS.'page_builder');
 foreach($dirs as $dir){
