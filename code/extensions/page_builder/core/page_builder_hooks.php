@@ -262,7 +262,8 @@ class ExtensionPageBuilder extends Extension
             return;
         }
         $execController = 'pages/product/product';
-        $pages = $that->layout->getPages(
+        $layout = new ALayout(Registry::getInstance(), $that->config->get('config_storefront_template') );
+        $pages = $layout->getPages(
             $execController,
             $that->layout->getKeyParamByController($execController),
             $product_id
@@ -305,8 +306,9 @@ class ExtensionPageBuilder extends Extension
         if (!$category_id) {
             return;
         }
+        $layout = new ALayout(Registry::getInstance(), $that->config->get('config_storefront_template') );
         $execController = 'pages/product/category';
-        $pages = $that->layout->getPages(
+        $pages = $layout->getPages(
             $execController,
             $that->layout->getKeyParamByController($execController),
             $category_id
@@ -349,8 +351,9 @@ class ExtensionPageBuilder extends Extension
         if (!$id) {
             return;
         }
+        $layout = new ALayout(Registry::getInstance(), $that->config->get('config_storefront_template') );
         $execController = 'pages/product/manufacturer';
-        $pages = $that->layout->getPages(
+        $pages = $layout->getPages(
             $execController,
             $that->layout->getKeyParamByController($execController),
             $id
@@ -399,8 +402,9 @@ class ExtensionPageBuilder extends Extension
         if (!$id) {
             return;
         }
+        $layout = new ALayout(Registry::getInstance(), $that->config->get('config_storefront_template') );
         $execController = 'pages/product/manufacturer';
-        $pages = $that->layout->getPages(
+        $pages = $layout->getPages(
             $execController,
             $that->layout->getKeyParamByController($execController),
             $id
@@ -456,8 +460,9 @@ class ExtensionPageBuilder extends Extension
         if (!$id) {
             return;
         }
+        $layout = new ALayout(Registry::getInstance(), $that->config->get('config_storefront_template') );
         $execController = 'pages/content/content';
-        $pages = $that->layout->getPages(
+        $pages = $layout->getPages(
             $execController,
             $that->layout->getKeyParamByController($execController),
             $id
