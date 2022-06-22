@@ -250,12 +250,6 @@ else if (window.attachEvent) {
     window.attachEvent("onmessage", onMessage, false);
 }
 
-function onMessage(event) {
-    var data = event.data;
-    if (typeof(window[data.func]) == "function") {
-        window[data.func].call(null, data.message);
-    }
-}
 
 // Function to be called from iframe
 function getStorageState(message) {
@@ -286,5 +280,13 @@ function getStorageState(message) {
                 }
             );
         }
+}
+
+
+function onMessage(event) {
+    var data = event.data;
+    if (typeof(window[data.func]) == "function") {
+        window[data.func].call(null, data.message);
+    }
 }
 </script>
