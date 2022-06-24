@@ -242,44 +242,42 @@ $(document).ready(function () {
     );
 });
 
-
 if (window.addEventListener) {
     window.addEventListener("message", onMessage, false);
-}
-else if (window.attachEvent) {
+} else if (window.attachEvent) {
     window.attachEvent("onmessage", onMessage, false);
 }
 
 
 // Function to be called from iframe
 function getStorageState(message) {
-        if(message === 'storage:start'){
-            $.ajax(
-                {
-                    type: 'GET',
-                    url: '<?php echo $publish_state_url?>',
-                    dataType: 'json',
-                    global: false,
-                    success: function (data) {
-                        if(data.published === 'true'){
-                            $('#publish').removeClass('btn-info').addClass('btn-default').attr('disabled','disabled');
-                            $('#undo').attr('disabled','disabled');
-                            $('#remove_custom_page').removeAttr('disabled');
-                        }else if(data.published === 'false'){
-                            $('#publish').removeClass('btn-default').addClass('btn-info').removeAttr('disabled');
-                            $('#undo').removeAttr('disabled');
-                            $('#remove_custom_page').removeAttr('disabled');
-                        }else if(data.published === 'nodata'){
-                            $('#undo, #remove_custom_page').attr('disabled','disabled');
-                            $('#publish')
-                                .removeClass('btn-info')
-                                .addClass('btn-default')
-                                .attr('disabled','disabled');
-                        }
-                    },
-                }
-            );
-        }
+    if(message === 'storage:end:store'){
+        $.ajax(
+            {
+                type: 'GET',
+                url: '<?php echo $publish_state_url?>',
+                dataType: 'json',
+                global: false,
+                success: function (data) {
+                    if(data.published === 'true'){
+                        $('#publish').removeClass('btn-info').addClass('btn-default').attr('disabled','disabled');
+                        $('#undo').attr('disabled','disabled');
+                        $('#remove_custom_page').removeAttr('disabled');
+                    }else if(data.published === 'false'){
+                        $('#publish').removeClass('btn-default').addClass('btn-info').removeAttr('disabled');
+                        $('#undo').removeAttr('disabled');
+                        $('#remove_custom_page').removeAttr('disabled');
+                    }else if(data.published === 'nodata'){
+                        $('#undo, #remove_custom_page').attr('disabled','disabled');
+                        $('#publish')
+                            .removeClass('btn-info')
+                            .addClass('btn-default')
+                            .attr('disabled','disabled');
+                    }
+                },
+            }
+        );
+    }
 }
 
 

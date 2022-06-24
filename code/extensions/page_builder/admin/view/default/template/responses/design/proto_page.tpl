@@ -242,18 +242,18 @@ if ($abc_blocks) {
             //send messages to parent window to call some function
             window.parent.postMessage({
                 'func': 'getStorageState',
-                'message': 'storage:start'
+                'message': 'storage:end:store'
             }, "*");
         });
 
         //send messages to parent window to call some function on every saving to storage
         editor.on(
-            'storage:start',
+            'storage:end:store',
             () => {
                 window.parent.postMessage(
                     {
                         'func': 'getStorageState',
-                        'message': 'storage:start'
+                        'message': 'storage:end:store'
                     },
                     "*"
                 );
@@ -263,11 +263,6 @@ if ($abc_blocks) {
             editor.Panels.getButton('options', 'autosave').set('active', true);
         });
 
-        if (window.addEventListener) {
-            window.addEventListener("message", onPublish, false);
-        } else if (window.attachEvent) {
-            window.attachEvent("onmessage", onPublish, false);
-        }
         function onPublish(event) {
             let data = event.data;
             //case when publishing with disabled autosave
@@ -283,8 +278,14 @@ if ($abc_blocks) {
                 }
             }
         }
+
+        if (window.addEventListener) {
+            window.addEventListener("message", onPublish, false);
+        } else if (window.attachEvent) {
+            window.attachEvent("onmessage", onPublish, false);
+        }
+
     }catch(e){
-        console.log(e);
         <?php if($this->config->get('page_builder_logging')){ ?>
             var xmlHttp = new XMLHttpRequest();
             xmlHttp.onreadystatechange = function()
