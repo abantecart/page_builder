@@ -258,6 +258,11 @@ if ($abc_blocks) {
                     "*"
                 );
             }
+        ).on(
+            'update',
+            () => {
+                editor.StorageManager.store();
+            }
         ).on('modal:close', () => {
             editor.StorageManager.setAutosave(true);
             editor.Panels.getButton('options', 'autosave').set('active', true);
