@@ -4,14 +4,17 @@ if(!defined('DS')) {
 }
 
 function preparePageBuilderPreset($data, $mode, $indexes){
+    if (!$data) {
+        return null;
+    }
     $output = null;
-    if($mode == 'html'){
+    if ($mode == 'html') {
         $doc = new DOMDocument();
         $doc->loadHTML($data);
 
         $xpath = new DOMXpath($doc);
         $elements = $xpath->query("//*[@data-gjs-custom_block_id]");
-        foreach($elements as $item){
+        foreach ($elements as $item) {
             /** @var DOMElement $item */
             $item->removeAttribute('data-gjs-layout_id');
             $item->removeAttribute('data-gjs-page_id');
