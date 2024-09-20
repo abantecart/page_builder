@@ -11,12 +11,10 @@ echo $this->language->getLanguageCode(); ?>">
     <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapesjs-plugin-filestack.css'); ?>">
     <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapick.min.css'); ?>">
     <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/tooltip.css'); ?>">
-    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/toastr.min.css'); ?>">
     <link rel="stylesheet" href="<?php echo $this->templateResource('/css/page_builder_editor.css'); ?>">
     <script src="<?php echo $this->templateResource('/javascript/grapesjs/grapes.min.js'); ?>"></script>
     <script src="<?php echo $this->templateResource('/javascript/grapesjs-preset-webpage.min.js'); ?>"></script>
     <script src="<?php echo $this->templateResource('/javascript/grapesjs-touch.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs_toastr.min.js'); ?>"></script>
     <script src="<?php echo $this->templateResource('/javascript/grapesjs-parser-postcss.min.js'); ?>"></script>
     <script src="<?php echo $this->templateResource('/javascript/grapesjs-tooltip.min.js'); ?>"></script>
     <script src="<?php echo $this->templateResource('/javascript/grapesjs-custom-code.min.js'); ?>"></script>
@@ -139,18 +137,18 @@ if ($abc_blocks) {
                         }
                     }
                 },
-                'grapesjs-abantecart-component': {
-                    storeUrl: <?php js_echo($block_content_url); ?>,
-                    loggingUrl: <?php js_echo($loggingUrl); ?>,
-                    abcLogging: <?php echo $this->config->get('page_builder_logging') ? 'true' : 'false'; ?>,
-                    abc_token: <?php js_echo($this->session->data['token']); ?>,
-                    blocks: <?php echo json_encode($jsBlocks, JSON_PRETTY_PRINT); ?>,
-                    mainContentArea: <?php echo json_encode($mainContentArea, JSON_PRETTY_PRINT); ?>,
-                    edit_urls: {
-                        abantecart_static_block: <?php js_echo($this->html->getSecureURL('design/blocks/edit')); ?>,
-                        abantecart_listing_block: <?php js_echo($this->html->getSecureURL('design/blocks/edit')); ?>,
-                    }
-                },
+                //'grapesjs-abantecart-component': {
+                //    storeUrl: <?php //js_echo($block_content_url); ?>//,
+                //    loggingUrl: <?php //js_echo($loggingUrl); ?>//,
+                //    abcLogging: <?php //echo $this->config->get('page_builder_logging') ? 'true' : 'false'; ?>//,
+                //    abc_token: <?php //js_echo($this->session->data['token']); ?>//,
+                //    blocks: <?php //echo json_encode($jsBlocks, JSON_PRETTY_PRINT); ?>//,
+                //    mainContentArea: <?php //echo json_encode($mainContentArea, JSON_PRETTY_PRINT); ?>//,
+                //    edit_urls: {
+                //        abantecart_static_block: <?php //js_echo($this->html->getSecureURL('design/blocks/edit')); ?>//,
+                //        abantecart_listing_block: <?php //js_echo($this->html->getSecureURL('design/blocks/edit')); ?>//,
+                //    }
+                //},
                 'grapesjs-custom-code': {
                     blockCustomCode: {
                         category: 'Extra'
