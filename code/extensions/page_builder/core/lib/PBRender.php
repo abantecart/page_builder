@@ -56,6 +56,7 @@ class PBRender
     public function setTemplate($templateData = [])
     {
         $this->templateData = $templateData;
+
     }
 
     /** not implemented yet */
@@ -67,53 +68,60 @@ class PBRender
     public function render()
     {
         $registry = Registry::getInstance();
-        $baseHtmlFile = DIR_PB_TEMPLATES
-            .$registry->get('config')->get('config_storefront_template')
-            .'/base.html';
+        $templateTxtId = $registry->get('config')->get('config_storefront_template');
+        $baseHtmlFile = DIR_PB_TEMPLATES.$templateTxtId.DS.'base.html';
         if (!is_file($baseHtmlFile)) {
-            $baseHtmlFile = DIR_EXT.$registry->get('config')->get('config_storefront_template')
-                        .'/storefront/base.html';
+            $baseHtmlFile = $templateTxtId == 'default'
+                ? DIR_STOREFRONT.'view'.DS.$templateTxtId.DS.'base.html'
+                : DIR_EXT.$templateTxtId.DS.'storefront'.DS.'view'.DS.$templateTxtId.DS.'base.html';
             if (!is_file($baseHtmlFile)) {
-                copy(DIR_EXT.'page_builder/base.html', $baseHtmlFile);
+                copy(DIR_EXT.'page_builder'.DS.'base.html', $baseHtmlFile);
             }
         }
         $this->output = file_get_contents($baseHtmlFile);
 
-        $this->output = str_replace(
-            '{{lang}}',
-            $this->registry->get('language')->getLanguageCode(),
-            $this->output
-        );
-        $this->output = str_replace(
-            '{{version}}',
-            VERSION,
-            $this->output
-        );
-
-        $this->output = str_replace(
-            '<!--  {{body}}-->',
-            $this->templateData['pageHtml'][0]['html'],
-            $this->output
-        );
-        $this->output = str_replace(
-            '<style></style>',
-            '<style>'.$this->templateData['pageHtml'][0]['css'].'</style>',
-            $this->output
-        );
-        $this->output = str_replace(
-            '{{baseUrl}}',
-            HTTPS_SERVER,
-            $this->output
-        );
+        $body = $this->templateData['pageHtml'][0]['html'];
+        $bodyDoc = new DOMDocument();
+        $bodyDoc->loadHTML($body);
+        $xpath = new DOMXpath($bodyDoc);
+        // remove meta and title tags from body before rendering
+        foreach ($xpath->evaluate("//body/base | //body/meta | //body/link | //body/title") as $node) {
+            $node->remove();
+        }
+        // add specific css-class for route
+        $bodyDomNode = $xpath->query("//body")[0];
+        $bodyDomNode->setAttribute('class',(str_replace("/", "-", $registry->get('request')->get['rt']) ?: 'home'));
 
         $componentInfo = $this->templateData['pages'][0]['frames'][0]['component']['components'];
-        $doc = new DOMDocument();
-        $doc->loadHTML($this->output);
-        $xpath = new DOMXpath($doc);
         //paste markers into html for replacement with results
-        $this->prepareOutput($doc, $xpath, $componentInfo);
+        $this->prepareOutput($bodyDoc, $xpath, $componentInfo);
+        $body = $bodyDoc->saveHTML($bodyDomNode);
 
-        $this->output = $doc->saveHTML();
+        $this->output = str_replace(
+            [
+                '{{lang}}',
+                '{{version}}',
+                '<style></style>',
+                '{{baseUrl}}',
+                '{{storeName}}',
+                '{{currency}}',
+                '{{default_currency}}',
+                '{{text_add_cart_confirm}}',
+                '<body></body>'
+            ],
+            [
+                $this->registry->get('language')->getLanguageCode(),
+                VERSION,
+                '<style>'.$this->templateData['pageHtml'][0]['css'].'</style>',
+                HTTPS_SERVER,
+                $registry->get('config')->get('config_title_'.$this->registry->get('language')->getLanguageID()),
+                $registry->get('currency')->getCode(),
+                $registry->get('config')->get('config_currency'),
+                $this->registry->get('language')->get('text_add_cart_confirm'),
+                $body
+            ],
+            $this->output
+        );
 
         //run page-controller first to fill some document info, such breadcrumbs
         $this->processMainContentArea($componentInfo);

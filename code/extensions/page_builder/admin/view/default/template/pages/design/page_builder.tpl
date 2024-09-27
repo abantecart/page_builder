@@ -45,8 +45,7 @@ foreach ($pages as $page) {
 			  <button class="btn btn-default dropdown-toggle"
                       type="button" data-toggle="dropdown"
                       style="max-width: 300px; overflow:hidden; text-overflow: ellipsis;"
-                      title="<?php echo_html2view($current_page['layout_name']);?>"
-              >
+                      title="<?php echo_html2view($current_page['layout_name']);?>">
 			    <i class="fa fa-square-o"></i>
 			    <?php echo $current_page['layout_name']; ?> <span class="caret"></span>
 			  </button>
@@ -56,27 +55,27 @@ foreach ($pages as $page) {
 			</div>
 
 			<div class="btn-group toolbar">
-				<button id="publish" class="actionitem btn btn-default lock-on-click tooltips"
+				<button id="publish" class="actionitem btn btn-default tooltips"
                         title="<?php echo_html2view($button_publish_title); ?>">
 					<i class="fa fa-feed fa-fw"></i><?php echo $button_publish; ?>
 				</button>
 			</div>
 
 			<div class="btn-group toolbar">
-				<a id="undo" class="actionitem btn btn-default lock-on-click tooltips" title="<?php echo_html2view($button_undo_title); ?>">
+				<a id="undo" class="actionitem btn btn-default tooltips" title="<?php echo_html2view($button_undo_title); ?>">
 					<i class="fa fa-undo fa-fw"></i>
 				</a>
 			</div>
 
 			<div class="btn-group toolbar">
-				<a id="remove_custom_page" class="actionitem btn btn-danger lock-on-click tooltips" title="<?php echo_html2view($button_remove_custom_page_title); ?>">
+				<a id="remove_custom_page" class="actionitem btn btn-danger tooltips" title="<?php echo_html2view($button_remove_custom_page_title); ?>">
 					<i class="fa fa-trash fa-fw"></i>
 				</a>
 			</div>
 			<div class="btn-group toolbar">
 				<a target="gpjspreview" id="preview"
                    href="<?php echo $previewUrl; ?>"
-                   class="actionitem btn btn-default lock-on-click tooltips <?php echo  !$this->config->get('page_builder_status') ? 'disabled' : ''?>"
+                   class="actionitem btn btn-default tooltips <?php echo  !$this->config->get('page_builder_status') ? 'disabled' : ''?>"
                    title="<?php echo_html2view($button_preview); ?>">
 					<i class="fa fa-eye fa-fw"></i>
 				</a>
@@ -117,7 +116,6 @@ foreach ($pages as $page) {
     <iframe id="page-editor" style="width: 100%; border: none; height: 675px;" src="<?php echo $proto_page_url; ?>"></iframe>
 </div>
 <script type="text/javascript">
-
 $(document).ready(function () {
     let pub = function() {
             $.ajax({
@@ -153,7 +151,7 @@ $(document).ready(function () {
     });
     $('#remove_custom_page').on('click', function() {
         if(confirm(<?php js_echo($button_remove_custom_page_confirm_text);?>)) {
-            $.cookie('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>','');
+            //Cookies.remove('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>',cookieOpts);
             $.get('<?php echo $remove_custom_page_url;?>',
                 function () {
                     let gpjs = $('#page-editor');
@@ -177,7 +175,7 @@ $(document).ready(function () {
         if(confirm('<?php js_echo($page_builder_text_load_preset_confirm_text);?>')){
             let gpjs = $('#page-editor');
             let frameUrl = gpjs.attr('src');
-            $.cookie('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>',val);
+            frameUrl += '&preset='+val;
             gpjs.attr('src', frameUrl);
         }
     });
@@ -188,14 +186,13 @@ $(document).ready(function () {
             let currentValue = $('#preset').chosen().val();
             if(currentValue === ''){
                 preset = prompt(<?php js_echo($text_prompt);?>, 'your-new-preset');
-                ask = preset ? true : false;
+                ask = !!preset;
             }else{
                 ask = confirm(<?php js_echo($text_ask_save);?>);
                 preset = currentValue;
             }
 
             if( ask ){
-
                 $.ajax(
                     {
                         type: 'POST',
@@ -204,7 +201,7 @@ $(document).ready(function () {
                         success: function () {
                             let text = <?php js_echo($page_builder_save_preset_success_text);?>;
                             success_alert(text.replace('%s',preset), true);
-                            $.cookie('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>',preset);
+                            //Cookies.set('loaded_pb_preset_<?php //echo $page_id.'-'.$layout_id;?>//',preset, cookieOpts);
                             if($("#preset option[value='"+preset+"']").length===0) {
                                 let newOption = $('<option value="'+preset+'" selected>'+preset+'</option>');
                                 $('#preset').append(newOption).chosen().trigger("chosen:updated");
@@ -230,7 +227,7 @@ $(document).ready(function () {
                         data : { 'preset_name': preset },
                         success: function () {
                             let text = <?php js_echo($page_builder_remove_preset_success_text);?>;
-                            $.cookie('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>','');
+                            //Cookies.remove('loaded_pb_preset_<?php echo $page_id.'-'.$layout_id;?>', cookieOpts);
                             info_alert(text.replace('%s',preset), true);
                             $("#preset option[value='"+preset+"']").remove();
                             $('#preset').chosen().trigger("chosen:updated");

@@ -8,12 +8,11 @@ class ControllerResponsesDesignPageBuilder extends AController
     public function __construct($registry, $instance_id, $controller, $parent_controller = '')
     {
         parent::__construct($registry, $instance_id, $controller, $parent_controller);
+
         $this->loadLanguage('page_builder/page_builder');
         $this->storageDir = DIR_PB_TEMPLATES;
-        $this->tmpl_id = $this->request->get['tmpl_id']
-            ? : $this->config->get('config_storefront_template')
-                ? : 'default';
-        $this->storageDir .= $this->tmpl_id.DIRECTORY_SEPARATOR;
+        $this->tmpl_id = $this->request->get['tmpl_id'] ?: $this->config->get('config_storefront_template') ?: 'default';
+        $this->storageDir .= $this->tmpl_id.DS;
         foreach (
             [
                 $this->storageDir,
@@ -52,9 +51,7 @@ class ControllerResponsesDesignPageBuilder extends AController
             '&page_id='.$page_id.'&layout_id='.$layout_id.'&tmpl_id='.$template
         );
         //URL for logging of javascript errors
-        $this->data['loggingUrl'] = $this->html->getSecureURL(
-            'r/design/page_builder/log'
-        );
+        $this->data['loggingUrl'] = $this->html->getSecureURL( 'r/design/page_builder/log' );
 
         $layout = new ALayoutManager($template, $page_id);
         $pageData = $layout->getPageData();
@@ -72,21 +69,22 @@ class ControllerResponsesDesignPageBuilder extends AController
             $this->view->assign('mainContentArea', $mainContentArea);
         }
 
-        if ($this->request->cookie['loaded_pb_preset_'.$page_id.'-'.$layout_id]) {
+        if ($this->request->get['preset']) {
             $get = $this->request->get;
-            $presetFile = DIR_PB_PRESETS.$this->request->cookie['loaded_pb_preset_'.$page_id.'-'.$layout_id].'.json';
+            unset($get['rt'],$get['token'],$get['s'],$get['preset']);
+            $presetFile = DIR_PB_PRESETS.$this->request->get['preset'].'.json';
             if (is_file($presetFile)) {
                 $pageRoute = $this->getPageRoute($page_id, $layout_id);
                 if ($pageRoute) {
                     $counter = $this->getMaxCounter($pageRoute) + 1;
                     copy(
                         $presetFile,
-                        $this->storageDir.'savepoints'.DIRECTORY_SEPARATOR.$pageRoute.'@'.$counter.'.json'
+                        $this->storageDir.'savepoints'.DS.$pageRoute.'@'.$counter.'.json'
                     );
                 }
             }
-            setcookie('loaded_pb_preset_'.$page_id.'-'.$layout_id,'');
-            redirect($this->html->getSecureURL($get['rt'], '&'.http_build_query($get)));
+
+            redirect($this->html->getSecureURL($this->request->get['rt'], '&'.http_build_query($get)));
         }
 
         //blocks list
@@ -164,17 +162,17 @@ class ControllerResponsesDesignPageBuilder extends AController
         $this->response->addJSONHeader();
 
         $defaultPreset = false;
-        $file = $this->storageDir.'savepoints'.DIRECTORY_SEPARATOR
+        $file = $this->storageDir.'savepoints'.DS
             .$pageRoute.'@'.$this->getMaxCounter($pageRoute).'.json';
         if (!is_file($file)) {
             //if unsaved page not found - seek published
-            $file = $this->storageDir.'public'.DIRECTORY_SEPARATOR.$pageRoute.'.json';
+            $file = $this->storageDir.'public'.DS.$pageRoute.'.json';
         }
 
         if (!is_file($file)) {
             $defaultPreset = true;
             //if published page not found - seek default preset of core template
-            $file = DIR_STOREFRONT.'view'.DIRECTORY_SEPARATOR.$this->tmpl_id.DIRECTORY_SEPARATOR.self::DEFAULT_PRESET;
+            $file = DIR_STOREFRONT.'view'.DS.$this->tmpl_id.DS.self::DEFAULT_PRESET;
         }
         if (!is_file($file)) {
             //if core default preset not found - seek default preset of extension template
@@ -182,7 +180,7 @@ class ControllerResponsesDesignPageBuilder extends AController
         }
         if (!is_file($file)) {
             //if no any default preset found - take default preset of pageBuilder
-            $file = DIR_EXT.'page_builder'.DIRECTORY_SEPARATOR.self::DEFAULT_PRESET;
+            $file = DIR_EXT.'page_builder'.DS.self::DEFAULT_PRESET;
         }
         $this->data['file'] = $file;
         //use to update controller data
@@ -203,7 +201,7 @@ class ControllerResponsesDesignPageBuilder extends AController
         $counter = $this->getMaxCounter($pageRoute)+1;
         if ($pageRoute) {
             file_put_contents(
-                $this->storageDir.'savepoints'.DIRECTORY_SEPARATOR.$pageRoute.'@'.$counter.'.json',
+                $this->storageDir.'savepoints'.DS.$pageRoute.'@'.$counter.'.json',
                 $json
             );
         }
@@ -236,7 +234,7 @@ class ControllerResponsesDesignPageBuilder extends AController
         if (!$fileNameMask) {
             return false;
         }
-        $files = glob($this->storageDir.'savepoints'.DIRECTORY_SEPARATOR.$fileNameMask.'*.json');
+        $files = glob($this->storageDir.'savepoints'.DS.$fileNameMask.'*.json');
         if (!$files) {
             return false;
         }
@@ -271,10 +269,10 @@ class ControllerResponsesDesignPageBuilder extends AController
         if ($pageRoute) {
             $presetFile = DIR_PB_PRESETS.preg_replace('/[^A-z0-9]/', '_', $presetName).'.json';
             $sourceFile = $this->storageDir
-                .'savepoints'.DIRECTORY_SEPARATOR
+                .'savepoints'.DS
                 .$pageRoute.'@'.$this->getMaxCounter($pageRoute).'.json';
             $sourceFile = !is_file($sourceFile) ? $this->storageDir
-                .'public'.DIRECTORY_SEPARATOR
+                .'public'.DS
                 .$pageRoute.'.json'
                 : $sourceFile;
             //remove content-main-area-block before saving
@@ -378,7 +376,7 @@ class ControllerResponsesDesignPageBuilder extends AController
         $this->extensions->hk_InitData($this, __FUNCTION__);
         $pageRoute = $this->session->data['PB']['current_route'];
         if ($pageRoute) {
-            $pageFile = $this->storageDir.'public'.DIRECTORY_SEPARATOR.$pageRoute.'.json';
+            $pageFile = $this->storageDir.'public'.DS.$pageRoute.'.json';
             if (is_file($pageFile)) {
                 if (!unlink($pageFile)) {
                     $errorText = sprintf($this->language->get('page_builder_error_remove_page'), $pageFile);
@@ -414,10 +412,10 @@ class ControllerResponsesDesignPageBuilder extends AController
         $this->extensions->hk_InitData($this, __FUNCTION__);
         $pageRoute = $this->session->data['PB']['current_route'];
         if ($pageRoute) {
-            $publishedFile = $this->storageDir.'public'.DIRECTORY_SEPARATOR.$pageRoute.'.json';
+            $publishedFile = $this->storageDir.'public'.DS.$pageRoute.'.json';
             $counter = $this->getMaxCounter($pageRoute);
             $savepointFile = $this->storageDir
-                .'savepoints'.DIRECTORY_SEPARATOR
+                .'savepoints'.DS
                 .$pageRoute.'@'.$counter.'.json';
             if (!is_file($savepointFile)) {
                 $errorText = $this->language->get('page_builder_error_nothing_to_publish');
@@ -475,7 +473,7 @@ class ControllerResponsesDesignPageBuilder extends AController
         $pageRoute = $this->session->data['PB']['current_route'];
 
         if ($pageRoute) {
-            $publishedFile = $this->storageDir.'public'.DIRECTORY_SEPARATOR.$pageRoute.'.json';
+            $publishedFile = $this->storageDir.'public'.DS.$pageRoute.'.json';
             $counter = $this->getMaxCounter($pageRoute);
             if (!$counter && is_file($publishedFile)) {
                 $this->data['output']['published'] = 'true';
@@ -506,7 +504,7 @@ class ControllerResponsesDesignPageBuilder extends AController
      */
     protected function clearSavePoints($fileNameMask)
     {
-        $files = glob($this->storageDir.'savepoints'.DIRECTORY_SEPARATOR.$fileNameMask.'*.json');
+        $files = glob($this->storageDir.'savepoints'.DS.$fileNameMask.'*.json');
         foreach($files as $filename){
             unlink($filename);
         }
@@ -525,7 +523,7 @@ class ControllerResponsesDesignPageBuilder extends AController
         if ($pageRoute) {
             $counter = $this->getMaxCounter($pageRoute);
             $savepointFile = $this->storageDir
-                .'savepoints'.DIRECTORY_SEPARATOR
+                .'savepoints'.DS
                 .$pageRoute.'@'.$counter.'.json';
 
             if (!unlink($savepointFile)) {

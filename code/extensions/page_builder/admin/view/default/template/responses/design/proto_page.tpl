@@ -1,30 +1,32 @@
-<?php
-/** @var AView|AController $this */ ?>
-<!doctype html>
-<html lang="<?php
-echo $this->language->getLanguageCode(); ?>">
+<?php /** @var AView|AController $this */ ?>
+<!DOCTYPE html>
+<html lang="<?php echo $this->language->getLanguageCode(); ?>">
 <head>
     <meta charset="utf-8">
-    <title></title>
-    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapesjs/css/grapes.min.css'); ?>">
-    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapesjs-preset-webpage.min.css'); ?>">
-    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapesjs-plugin-filestack.css'); ?>">
-    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/grapick.min.css'); ?>">
-    <link rel="stylesheet" href="<?php echo $this->templateResource('/javascript/tooltip.css'); ?>">
+    <title>Page Builder Frame</title>
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/js/grapesjs/css/grapes.min.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/js/grapesjs-preset-webpage.min.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/js/grapesjs-plugin-filestack.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/js/grapick.min.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->templateResource('/js/tooltip.css'); ?>">
     <link rel="stylesheet" href="<?php echo $this->templateResource('/css/page_builder_editor.css'); ?>">
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs/grapes.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-preset-webpage.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-touch.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-parser-postcss.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-tooltip.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-custom-code.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-style-bg.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-style-gradient.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-tabs.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-lory-slider.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-typed.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-tui-image-editor.min.js'); ?>"></script>
-    <script src="<?php echo $this->templateResource('/javascript/grapesjs-abantecart-component/grapesjs-abantecart-component.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs/grapes.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-preset-webpage.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-blocks-basic.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-touch.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-parser-postcss.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-tooltip.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-custom-code.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-style-bg.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-style-gradient.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-style-filter.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-tabs.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-navbar.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-component-countdown.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-plugin-forms.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-typed.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-tui-image-editor.min.js'); ?>"></script>
+    <script src="<?php echo $this->templateResource('/js/grapesjs-abantecart-component/index.js'); ?>"></script>
 </head>
 
 <body>
@@ -108,10 +110,15 @@ if ($abc_blocks) {
             assetManager: {
                 embedAsBase64: 1,
             },
-            styleManager: { sectors: [] },
+            styleManager: { },
             plugins: [
+                'grapesjs-preset-webpage',
+                'gjs-blocks-basic',
                 'grapesjs-style-gradient',
-                'grapesjs-lory-slider',
+                'grapesjs-style-filter',
+                'grapesjs-navbar',
+                'grapesjs-component-countdown',
+                'grapesjs-plugin-forms',
                 'grapesjs-tabs',
                 'grapesjs-custom-code',
                 'grapesjs-touch',
@@ -120,35 +127,28 @@ if ($abc_blocks) {
                 'grapesjs-tui-image-editor',
                 'grapesjs-typed',
                 'grapesjs-style-bg',
-                'gjs-preset-webpage',
                 'grapesjs-abantecart-component',
             ],
             pluginsOpts: {
-                'gjs-preset-webpage': {
+                'grapesjs-preset-webpage': {
                     modalImportTitle: 'Import or Edit HTML',
                     modalImportLabel: '<div style="margin-bottom: 10px; font-size: 13px;">Paste here your HTML/CSS and click Import</div>',
                     modalImportContent: function (editor) {
                         return editor.getHtml() + '<style>' + editor.getCss() + '</style>'
-                    },
-                    blocksBasicOpts: {
-                        blocks: ['column1', 'column2', 'column3', 'column3-7', 'text', 'link', 'image', 'video', 'map'],
-                        category: {
-                            label: 'Basic',
-                        }
                     }
                 },
-                //'grapesjs-abantecart-component': {
-                //    storeUrl: <?php //js_echo($block_content_url); ?>//,
-                //    loggingUrl: <?php //js_echo($loggingUrl); ?>//,
-                //    abcLogging: <?php //echo $this->config->get('page_builder_logging') ? 'true' : 'false'; ?>//,
-                //    abc_token: <?php //js_echo($this->session->data['token']); ?>//,
-                //    blocks: <?php //echo json_encode($jsBlocks, JSON_PRETTY_PRINT); ?>//,
-                //    mainContentArea: <?php //echo json_encode($mainContentArea, JSON_PRETTY_PRINT); ?>//,
-                //    edit_urls: {
-                //        abantecart_static_block: <?php //js_echo($this->html->getSecureURL('design/blocks/edit')); ?>//,
-                //        abantecart_listing_block: <?php //js_echo($this->html->getSecureURL('design/blocks/edit')); ?>//,
-                //    }
-                //},
+                'grapesjs-abantecart-component': {
+                    storeUrl: <?php js_echo($block_content_url); ?>,
+                    loggingUrl: <?php js_echo($loggingUrl); ?>,
+                    abcLogging: <?php echo $this->config->get('page_builder_logging') ? 'true' : 'false'; ?>,
+                    abc_token: <?php js_echo($this->session->data['token']); ?>,
+                    blocks: <?php echo json_encode($jsBlocks, JSON_PRETTY_PRINT); ?>,
+                    mainContentArea: <?php echo json_encode($mainContentArea, JSON_PRETTY_PRINT); ?>,
+                    edit_urls: {
+                        abantecart_static_block: <?php js_echo($this->html->getSecureURL('design/blocks/edit')); ?>,
+                        abantecart_listing_block: <?php js_echo($this->html->getSecureURL('design/blocks/edit')); ?>,
+                    }
+                },
                 'grapesjs-custom-code': {
                     blockCustomCode: {
                         category: 'Extra'
@@ -157,11 +157,6 @@ if ($abc_blocks) {
                 'grapesjs-tabs': {
                     tabsBlock: {
                         category: 'Extra',
-                    }
-                },
-                'grapesjs-lory-slider': {
-                    sliderBlock: {
-                        category: 'Extra'
                     }
                 },
                 'grapesjs-typed': {
@@ -205,17 +200,16 @@ if ($abc_blocks) {
         });
 
         //events after initialization
-        editor.on('load', () => {
+        editor.onReady(() => {
             let pm = editor.Panels;
             pm.getButton('views', 'open-blocks').set('active', true);
             pm.getButton('options', 'sw-visibility').set('active', true);
-            pm.getButton('options', 'gjs-open-import-webpage')
-                .set('className', 'fa fa-sign-in')
-                .set('attributes', {title: 'Import or Edit HTMl-code'});
+            let b = pm.getButton('options', 'gjs-open-import-webpage');
+            b.set('attributes', {title: 'Import or Edit HTMl-code'});
             editor.runCommand('open-blocks');
             pm.removeButton('options', 'preview');
-            pm.removeButton('options', 'redo');
-            pm.removeButton('options', 'undo');
+            //pm.removeButton('options', 'redo');
+            //pm.removeButton('options', 'undo');
             pm.removeButton('options', 'canvas-clear');
             pm.addButton('options', {
                 id: 'autosave',
