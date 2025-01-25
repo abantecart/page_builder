@@ -1,8 +1,61 @@
 <?php
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2024 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
+
 if(!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
 
+function checkPBDirs($templateTxtId)
+{
+    if( !defined('DIR_PB_TEMPLATES')
+        || !is_writable_dir(DIR_PB_TEMPLATES.'savepoints')
+        || !is_writable_dir(DIR_PB_TEMPLATES.'public')
+        || !is_writable_dir(DIR_PB_TEMPLATES.'presets')
+    ){
+        throw new AException(
+            AC_ERR_USER_ERROR,
+            'Error! Please check permissions of directory '
+            . DIR_SYSTEM . 'page_builder and it\'s subdirectories'
+        );
+    }
+
+    foreach(['savepoints','presets','public'] as $subDir){
+        $dir = DIR_PB_TEMPLATES.$subDir.DS.$templateTxtId;
+        if(!is_dir($dir)){
+            mkdir($dir,0775);
+        }
+        if(!is_writable_dir($dir) || !is_readable($dir)){
+            throw new AException(
+                AC_ERR_USER_ERROR,
+                'Error! Please check permissions of directory '. $dir . ' .'
+            );
+        }
+    }
+}
+
+/**
+ * @param string $data
+ * @param string $mode
+ * @param array $indexes
+ * @return false|mixed|string|null
+ */
 function preparePageBuilderPreset($data, $mode, $indexes){
     if (!$data) {
         return null;
@@ -37,6 +90,11 @@ function preparePageBuilderPreset($data, $mode, $indexes){
     return $output;
 }
 
+/**
+ * @param array $data
+ * @param array $indexes
+ * @return array
+ */
 function processPageBuilderComponent($data, $indexes){
     foreach($data as &$item){
         unset(

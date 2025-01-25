@@ -108,10 +108,9 @@
 		<key>page_builder_text_forms</key>
 		<value><![CDATA[Forms]]></value>
 	</definition>
-
 	<definition>
 		<key>page_builder_error_storage_permissions</key>
-		<value><![CDATA[PageBuilder Error: Directory %s cannot be created. Please check permissions!]]></value>
+		<value><![CDATA[PageBuilder Error: Directory %s does not exist or not writable. Please check permissions!]]></value>
 	</definition>
 	<definition>
 		<key>page_builder_error_preset_permissions</key>
@@ -146,7 +145,27 @@
 		<value><![CDATA[Rollback is unavailable. Save point not found]]></value>
 	</definition>
 	<definition>
+		<key>page_builder_error_cannot_save</key>
+		<value><![CDATA[Cannot save changes. Please check permissions for directory %s]]></value>
+	</definition>
+	<definition>
 		<key>page_builder_tab_title</key>
-		<value><![CDATA[To start build a page palest create layout first]]></value>
+		<value><![CDATA[To start building a page, please create the layout first.]]></value>
+	</definition>
+	<definition>
+		<key>page_builder_text_already_published</key>
+		<value><![CDATA[This page is already published by Page Builder.]]></value>
+	</definition>
+	<definition>
+		<key>page_builder_text_can_try</key>
+		<value><![CDATA[...or this page can be customized with Page Builder.]]></value>
+	</definition>
+	<definition>
+		<key>page_builder_button_click_to_edit_page</key>
+		<value><![CDATA[Click to Edit page]]></value>
+	</definition>
+	<definition>
+		<key>page_builder_button_click_to_try</key>
+		<value><![CDATA[Click to Try]]></value>
 	</definition>
 </definitions>

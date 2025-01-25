@@ -5,10 +5,8 @@
     <meta charset="utf-8">
     <title>Page Builder Frame</title>
     <link rel="stylesheet" href="<?php echo $this->templateResource('/js/grapesjs/css/grapes.min.css'); ?>">
-    <link rel="stylesheet" href="<?php echo $this->templateResource('/js/grapesjs-preset-webpage.min.css'); ?>">
     <link rel="stylesheet" href="<?php echo $this->templateResource('/js/grapesjs-plugin-filestack.css'); ?>">
     <link rel="stylesheet" href="<?php echo $this->templateResource('/js/grapick.min.css'); ?>">
-    <link rel="stylesheet" href="<?php echo $this->templateResource('/js/tooltip.css'); ?>">
     <link rel="stylesheet" href="<?php echo $this->templateResource('/css/page_builder_editor.css'); ?>">
     <script src="<?php echo $this->templateResource('/js/grapesjs/grapes.min.js'); ?>"></script>
     <script src="<?php echo $this->templateResource('/js/grapesjs-preset-webpage.min.js'); ?>"></script>
@@ -55,7 +53,7 @@ if ($abc_blocks) {
                 $editUrl = null;
         }
         $blockName = mb_strtoupper(str_replace('_', ' ', $block['title']));
-        $jsBlocks['ABC-'.$blockName] = [
+        $jsBlocks[$blockName] = [
             'id' => $block['id'],
             'name' => $block['title'],
             'opts' => [
@@ -70,7 +68,7 @@ if ($abc_blocks) {
                     //html attributes of newly created blocks on the canvas
                     //Note: names must be started "data-gjs-" to work correctly during import
                     'attributes'      => [
-                        'data-gjs-custom-name'     => 'ABC-'.$blockName,
+                        'data-gjs-custom-name'     => $blockName,
                         'data-gjs-type'            => 'abantecart-'.$type.'-block',
                         'data-gjs-route'           => $block['controller'],
                         'data-gjs-layout_id'       => $mainContentArea['layout_id'],
@@ -78,7 +76,7 @@ if ($abc_blocks) {
                         'data-gjs-custom_block_id' => $block['custom_block_id'],
                     ],
                     // name for DOM tree (layer name)
-                    'custom-name'     => 'ABC-'.$blockName,
+                    'custom-name'     => $blockName,
                     'route'           => $block['controller'],
                     'custom_block_id' => $block['custom_block_id'],
                     'admin_token'     => $this->session->data['token'],

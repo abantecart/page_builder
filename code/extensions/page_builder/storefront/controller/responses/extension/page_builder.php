@@ -1,8 +1,25 @@
 <?php
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2024 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 
 class ControllerResponsesExtensionPageBuilder extends AController
 {
-
     public function getControllerOutput()
     {
         $this->load->library('json');
@@ -19,6 +36,9 @@ class ControllerResponsesExtensionPageBuilder extends AController
                 $this->dryRunMainContentController();
                 $this->registry->set('PBuilder_interception', true);
                 $this->registry->set('PBuilder_block_template', $this->request->get['template']);
+                if($this->request->get['pageTemplate']){
+                    $this->config->set('config_storefront_template', $this->request->get['pageTemplate']);
+                }
                 $args = [
                     'instance_id' => 0,
                     'custom_block_id' => (int)$this->request->get['custom_block_id'],
@@ -83,7 +103,7 @@ class ControllerResponsesExtensionPageBuilder extends AController
                 //run controller and intercept data
                 /** @see ExtensionPageBuilder::__call() */
                 $dis->dispatchGetOutput();
-                $this->data = array_merge($this->data, $this->registry->get('PBRunData')['data']);
+                $this->data = array_merge($this->data, (array)$this->registry->get('PBRunData')['data']);
                 $this->registry->set('PBuilder_interception', false);
                 $this->registry->set('PBuilder_dryrun', false);
                 $this->registry->set('PBuilder_block_template', '');
@@ -102,13 +122,11 @@ class ControllerResponsesExtensionPageBuilder extends AController
         //in case when layout is for default product page - take a random product id
         $sql = "SELECT product_id 
                 FROM ". $this->db->table('products')." 
-                WHERE date_available <= NOW() AND status=1
+                WHERE COALESCE(date_available,NOW()) <= NOW() AND status=1
                 ORDER BY rand() 
                 LIMIT 1";
         $res = $this->db->query($sql);
-        $this->session->data['pbuilder_editor']['random_product_id']
-            = $this->request->get['product_id']
+        $this->session->data['pbuilder_editor']['random_product_id'] = $this->request->get['product_id']
             = $res->row['product_id'];
-
     }
 }
